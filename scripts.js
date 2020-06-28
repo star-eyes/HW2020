@@ -1,6 +1,6 @@
-let tasks=[];
-let im=[];
-let imdone=[];
+let tasks=[];//存储输入数据
+let im=[];//存储重要程度的数据
+let imdone=[];//为了刷新时不把重要程度重置，因此用这个数组来判断是不是第一次创建行程。
 function renderEditor(){
     let inputEL = document.querySelector("#default-todo-panel .todo-editor > input");
    
@@ -44,10 +44,10 @@ function renderTaskItems(){
 
     for(let i=0; i < tasks.length; i++ ) {
         let task = tasks[i];
-        if(imdone[i]!=1){
-            imdone[i]=1;
-            im[i]=0;
-        };//表示已注册过IM
+        if(imdone[i]!=1){//初始化时无数据，因此如果是初始化就给重要程度初始化，否则不对重要程度进行修改
+            imdone[i]=1;//1表示这行行程已经初始化
+            im[i]=0;//0表示初始的重要程度为1
+        };
 
         let itemEl = document.createElement("div");
         itemEl.className = "task";
@@ -87,14 +87,14 @@ function renderTaskCtrlBar(tasks,taskIdx){
     ctrlbarEl.className = "ctrlbar";
 
     let impEl = document.createElement("button");
-    let impem=["①","②","③","④","⑤"];
-        impEl.innerText = impem[im[taskIdx]];
+    let impem=["①","②","③","④","⑤"];//重要程度的符号，可增加数量
+        impEl.innerText = impem[im[taskIdx]];//根据重要程度显示对应的符号
     impEl.onclick = () =>{     
         if(im[taskIdx]<4){
              im[taskIdx]+=1;
         }else {
             im[taskIdx]=0;
-        }   
+        }   //点击重要程度，小于5的加1，5的话变成1
         renderTaskItems();
     }
     ctrlbarEl.append(impEl);
@@ -106,15 +106,9 @@ function renderTaskCtrlBar(tasks,taskIdx){
     upEl.innerText = "↑";
     upEl.onclick = () =>{
         if (taskIdx>0){
-        let taskem=tasks[taskIdx];
-        tasks.splice(taskIdx,1,tasks[taskIdx-1])
-        tasks.splice(taskIdx-1,1,taskem) 
-        let imem=im[taskIdx];
-        im.splice(taskIdx,1,im[taskIdx-1])
-        im.splice(taskIdx-1,1,imem) 
-        let zh=imdone[taskIdx];
-        imdone[taskIdx]=imdone[taskIdx-1];
-        imdone[taskIdx-1]=zh;
+            upem(tasks,taskIdx);
+            upem(im,taskIdx);
+            upem(imdone,taskIdx);
         renderTaskItems(); 
         }
     }
@@ -127,15 +121,9 @@ function renderTaskCtrlBar(tasks,taskIdx){
     downEl.innerText = "↓";
     downEl.onclick = () =>{
         if (taskIdx < (tasks.length-1)){
-            let taskem=tasks[taskIdx];
-            tasks.splice(taskIdx,1,tasks[taskIdx+1])
-            tasks.splice(taskIdx+1,1,taskem) 
-            let imem=im[taskIdx];
-            im.splice(taskIdx,1,im[taskIdx+1])
-            im.splice(taskIdx+1,1,imem) 
-            let zh=imdone[taskIdx];
-            imdone[taskIdx]=imdone[taskIdx+1];
-            imdone[taskIdx+1]=zh;
+            downem(tasks,taskIdx);
+            downem(im,taskIdx);
+            downem(imdone,taskIdx);         
             renderTaskItems(); 
             }
     }
@@ -154,5 +142,15 @@ function renderTaskCtrlBar(tasks,taskIdx){
     return ctrlbarEl;
 }
 
+function upem(arr,i){
+    let arrem=arr[i];
+    arr.splice(i,1,arr[i-1])
+    arr.splice(i-1,1,arrem)  
+}
+function downem(arr,i){
+    let arrem=arr[i];
+    arr.splice(i,1,tasks[i+1])
+    arr.splice(i+1,1,arrem) 
+}
 renderEditor();
 renderTaskItems();
